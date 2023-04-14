@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glissando</title>
+    <style>
+        @font-face {
+            font-family: "Etude";
+            src: url(Fonts/Etude-Regular.ttf) format("truetype");
+            font-weight: regular;
+        }
+
+        @font-face {
+            font-family: "Etude";
+            src: url(Fonts/Etude-Light.ttf) format("truetype");
+            font-weight: light;
+        }
+
+        @font-face {
+            font-family: "Etude";
+            src: url(Fonts/Etude-Bold.ttf) format("truetype");
+            font-weight: bold;
+        }
+
+        body {
+            font-family: Etude;
+            font-weight: Regular;
+            margin: 2rem;
+        }
+
+        h1 {
+            font-family: Etude;
+            font-weight: bold;
+            align-items: left;
+        }
+        h3 {
+            font-weight: Regular;
+            font-family: Etude;
+            font-size: small;
+            padding: 4px;
+            padding-left: 8px;
+            padding-right: 8px;
+            border: 2px solid black;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-radius: 2%;
+            padding-left: 5%;
+            padding-right: 5%;
+            width: 30%;
+        }
+        input, button {
+            margin: 1rem;
+            font-family: Etude;
+            font-weight: regular;
+        }
+        textarea {
+            font-family: Etude;
+            font-weight: bold;
+            font-size: medium;
+            margin: 1rem;
+            width: 60%;
+            padding: 0.5rem;
+            border-radius: 3%;
+            border: 1px solid black;
+        }
+        download-link {
+            font-weight: Regular;
+            font-family: Etude;
+            font-size: small;
+            padding: 4px;
+            padding-left: 8px;
+            padding-right: 8px;
+            border: 2px solid black;
+            align-items: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Glissando</h1>
+        <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
+            <div class="file-upload">
+                <input type="file" name="audio_file" id="actual_btn" accept="audio/*" required hidden/>
+                <label for = "actual_btn"><h3>upload file</h3></label>
+            </div>
+            <textarea name="input_text" rows="6" cols="40" placeholder="try something like: '80s glam metal / steve lacy indie tone / winter jazz club vibes" required></textarea>
+            <button type="submit" id = "process" hidden></button><label for = "process"><h3>process audio</h3></label>
+            <p>* for best results, upload a .wav file</p>
+        </form>
+        <div id="processed-output" style="display: none;">
+            <p id="processed-text"></p>
+            <a href="#" id="download-link" download>Download Processed Audio</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById("upload-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch("/", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const jsonResponse = await response.json();
+                    document.getElementById("processed-text").textContent = jsonResponse.processed_text;
+                    document.getElementById("download-link").href = jsonResponse.download_url;
+                    document.getElementById("processed-output").style.display = "block";
+                } else {
+                    document.getElementById("message").textContent = "Error: " + response.statusText;
+                }
+            } catch (error) {
+                document.getElementById("message").textContent = "Error: " + error;
+            }
+        });
+    </script>
+</body>
+</html>
