@@ -52,72 +52,36 @@ def write_output(input_audio, f_name, p_board, samplerate = 44100):
 ## Placeholder Genre Presets ##
 #########
 
-# Creating an empty pedalboard object that will ultimately contain all of our "effects".
-board = Pedalboard()
+# Designing pedals for specific requests that can later be concatenated for a "composite" sound.
+def chorus(x):
+  return Chorus(rate_hz = 20, depth = 0.25, mix = x/100)
 
-# Designing pedalboards for specific genre requests that can later be concatenated for a "composite" sound.
-def jazz(x):
-  return Mix([
-    Chorus(rate_hz = 8, mix = x / 100, depth = 0.2),
-  ])
+def drive(x):
+  return Mix([Distortion(drive_db = 0.5 * x), Compressor(threshold_db=-1, ratio = 1.6)])
 
-def prog(x):
-  return Mix([
-    Compressor(threshold_db = 10, ratio = 1, attack_ms = 15),
-    Chorus(rate_hz = 20),
-    Gain(gain_db = x/10),
-    ])
+def delay(x):
+  return Delay(delay_seconds=0.3, mix = x * 0.6 * 0.01)
 
-def indie(x):
-  return Mix([
-    Chorus(rate_hz = 30, mix = 1, depth = 0.6 * (x/100)), Gain(gain_db = 40 * (x/100))
-    ])
-
-octaver = Mix([PitchShift(semitones = -12), Distortion(drive_db = 8), Compressor(threshold_db = 15)])
-
-def metal(x):
-  return Mix([
-    Compressor(threshold_db = 5, ratio = 1.2),
-    Gain(gain_db = 8),
-    Distortion(drive_db = 15)
-  ])
+def compressor(x):
+  return Compressor(threshold_db=-6, ratio = x / 10)
 
 def reverb(x):
-  return Reverb(room_size = 0.2, damping = 0.6, wet_level = min(1, x/100 + 0.3), dry_level = 0.7)
+  wet_l = min(0.5, x/100 + 0.3)
+  return Reverb(room_size = 0.2, damping = 0.6, wet_level = wet_l, dry_level = 1 - wet_l)
 
 pedals = {
-  "Jazz": jazz, 
-  "Prog": prog,
-  "Indie": indie,
-  "Metal": metal,
+  "Compressor": compressor,
+  "Drive": drive,
+  "Chorus": chorus,
+  "Delay": delay,
   "Reverb": reverb
 }
-
-
-"""
-Enter desired properties below.
-Available sounds: 0: Jazz, 1: 60s Gain, 2: Both
-"""
-"""
-def modify_board(p_board, option):
-    option = int(option)
-    if option == 0:
-        p_board.append(Mix([jazz, Reverb()]))
-    elif option == 1:
-        p_board = (Mix([Compressor(threshold_db = -50, ratio = 25), prog]))
-    else:
-        p_board = Pedalboard([
-            Compressor(threshold_db = -50, ratio = 25), 
-            Mix([jazz, prog]), 
-            Reverb()])
-    return p_board
-"""
 
 #########
 ## OOP Implementation of Generated Pedal ##
 #########
 
-system_prompt = "Take in a 5 word prompt from the user and return a comma-separated list of its percentage closeness to 5 musical genres: Jazz, Metal, Prog, Indie, Reverb. Answers must add up to 100%."
+system_prompt = "I am a user entering text prompts related to guitar tones. You need to return your best guess for a MAXIMUM of 3 parameters based on that prompt (setting the rest to 0%) in EXACTLY this format - Compressor: X%, Drive: X%, Chorus: X%, Delay: X%, Reverb: X% - where X is some percentage value between 1 and 99 if selected, and the rest are explicitly set to 0%. The goal is to select pedals and parameters that would possibly be the most accurate in replicating the sound demanded by the user."
 class BoardGenerator:
   def __init__(self, input_text):
     self.input_text = input_text
@@ -145,6 +109,8 @@ class BoardGenerator:
 
   def make_board(self):
     for i in range(5):
-      if self.weights[i] > 10:
+      if self.weights[i] > 0:
         self.board.append(list(pedals.values())[i](self.weights[i]))
+    self.board.append(Limiter(threshold_db=-4))
+    self.text = "Compressor: " + str(self.weights[0]) + "% Drive: " + str(self.weights[1]) + "% Chorus: " + str(self.weights[2]) + "% Delay: " + str(self.weights[3]) + "% Reverb: " + str(self.weights[4])
     return self.board

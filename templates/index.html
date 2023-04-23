@@ -24,24 +24,36 @@
         }
 
         body {
-            font-family: Etude;
+            font-family: "Etude", "Helvetica", "Arial";
             font-weight: Regular;
             margin: 2rem;
         }
 
         h1 {
-            font-family: Etude;
+            font-family: "Etude", "Helvetica", "Arial";
             font-weight: bold;
             align-items: left;
         }
         h3 {
             font-weight: Regular;
-            font-family: Etude;
+            font-family: "Etude", "Helvetica", "Arial";
             font-size: small;
             padding: 4px;
             padding-left: 8px;
             padding-right: 8px;
             border: 2px solid black;
+            margin-block-start: 0px;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+            cursor: pointer;
+        }
+        p {
+            margin: 20%;
+            margin-top: 0px;
+            margin-bottom: 2rem;
+        }
+        .actual_btn {
+            margin: 0px;
         }
         .container {
             display: flex;
@@ -60,13 +72,12 @@
         }
         input, button {
             margin: 1rem;
-            font-family: Etude;
+            font-family: "Etude", "Helvetica", "Arial";
             font-weight: regular;
         }
         textarea {
-            font-family: Etude;
-            font-weight: bold;
-            font-size: medium;
+            font-family: "Etude", "Helvetica", "Arial";
+            font-size: small;
             margin: 1rem;
             width: 60%;
             padding: 0.5rem;
@@ -75,7 +86,7 @@
         }
         download-link {
             font-weight: Regular;
-            font-family: Etude;
+            font-family: "Etude", "Helvetica", "Arial";
             font-size: small;
             padding: 4px;
             padding-left: 8px;
@@ -89,18 +100,18 @@
 <body>
     <div class="container">
         <h1>Glissando</h1>
+        <p>This is a demo for Glissando V1 - a new way of interfacing with guitar effects powered by JUCE and the GPT API. Upload a dry (unprocessed) audio file and enter a prompt describing how you want your music to sound or feel - in any way you'd like! For best results, upload a .wav file</p>
         <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
             <div class="file-upload">
-                <input type="file" name="audio_file" id="actual_btn" accept="audio/*" required/>
+                <input type="file" name="audio_file" id="actual_btn" accept="audio/*" hidden required/>
                 <label for = "actual_btn"><h3>upload file</h3></label>
             </div>
             <textarea name="input_text" rows="6" cols="40" placeholder="try something like: '80s glam metal / steve lacy indie tone / winter jazz club vibes" required></textarea>
             <button type="submit" id = "process" hidden></button><label for = "process"><h3>process audio</h3></label>
-            <p>* for best results, upload a .wav file</p>
         </form>
         <div id="processed-output" style="display: none;">
             <p id="processed-text"></p>
-            <a href="#" id="download-link" download>Download Processed Audio</a>
+            <a href="#" id="download-link" download></a><label for = "download-link"><h3>Download Processed Audio</h3></label>
         </div>
     </div>
     <script>

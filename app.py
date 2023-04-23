@@ -40,26 +40,13 @@ def index():
     return render_template('index.html')
 
 
-"""
-# Old Version of process_audio
-def process_audio(input_file_path, input_text):
-    iteration = fx.ranger.__next__()
-    f_name = "current_output" + str(iteration) + ".wav"
-    input_audio = fx.set_input(input_file_path)
-    board = fx.board
-    board = fx.modify_board(board, option = int(input_text))
-    effected = fx.write_output(input_audio, f_name, board, samplerate= 44100)
-    return f_name
-"""
-
-
 def process_audio(input_file_path, input_text):
     iteration = fx.ranger.__next__()
     f_name = "output.wav"
     input_audio = fx.set_input(input_file_path)
     p_board = fx.BoardGenerator(input_text)
     effected = fx.write_output(input_audio, f_name, p_board.board, samplerate= 44100)
-    return f_name, p_board.gpt_response
+    return f_name, p_board.text
 
 @app.route('/download/<path:filename>', methods=['GET'])
 def download_file(filename):
